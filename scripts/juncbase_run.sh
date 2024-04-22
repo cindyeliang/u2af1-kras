@@ -1,4 +1,5 @@
 
+#This script and analysis was written and performed by Carlos Arevalo (carevalo0170@gmail.com)
 
 ####################################################################################################
 ### JuncBASE command
