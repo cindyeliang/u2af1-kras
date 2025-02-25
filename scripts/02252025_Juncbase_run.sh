@@ -1,3 +1,6 @@
+#!/bin/bash
+set -euo pipefail
+
 #This script and analysis was written and performed by Selam Mehreteab (smehrete@ucsc.edu)
 
 ##########################################################################################################################################JuncBASE comand
