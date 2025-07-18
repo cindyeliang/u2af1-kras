@@ -1,0 +1,157 @@
+---
+title: "clone 1 clone 2 deseq2 analysis"
+author: "Cindy Liang (celiang@ucsc.edu)"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_notebook
+---
+
+# Introduction:
+
+poly(A)-selected RNA from two isogenic clones of human bronchial epithelial cells (HBECs) were sequenced with the Illumina NovaSeq S4 (PE150). 
+Following alignment to a modified version of the GRCh38 reference genome that makes the U2AF1 alignable ([Miller 2022](https://zenodo.org/records/4684553)) with STAR, 
+HTSeq-count was run on the aligned files to produce gene count files.
+
+In this notebook, the DESeq2 and limma packages are used to collapse technical replicates in clone 1, 
+batch correct clone 1 and clone 2 samples,
+and plot PCAs of the DESeq2 matrices before and after batch correction.
+
+Please see the project's [biorxiv](https://www.biorxiv.org/content/10.1101/2024.09.11.612492v1.full#ref-50) and [github repo](https://github.com/cindyeliang/u2af1-kras) for further method details.
+
+Load libraries
+
+```{r}
+library('DESeq2')
+library('EnhancedVolcano')
+```
+
+Set path location
+
+```{r}
+base_dir <- here::here()
+
+# define the data directory
+data_dir <- file.path(base_dir, "data/raw")
+
+# define paths to files
+
+#load clinical metadata -- contains age at dx in years
+htseqcount_dir <- file.path(data_dir, "c1c2htseqcount/")
+
+```
+
+
+Load files
+
+```{r}
+u2af1krasFiles<-grep('clone', list.files(htseqcount_dir),value=TRUE)
+u2af1krasFiles
+```
+
+Create sample table
+
+```{r}
+u2af1krasBatch<-c("clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone2", "clone2", "clone2", "clone2", "clone2", "clone2", "clone2", "clone2", "clone2", "clone2", "clone2", "clone2")
+
+u2af1krasSample<-c("U2AF1_S34F_KRAS_G12V_1", "U2AF1_S34F_LACZ_1", 'U2AF1_WT_KRAS_G12V_1', 'U2AF1_WT_LACZ_1', "U2AF1_S34F_KRAS_G12V_2", "U2AF1_S34F_LACZ_2", 'U2AF1_WT_KRAS_G12V_2', 'U2AF1_WT_LACZ_2', "U2AF1_S34F_KRAS_G12V_3", "U2AF1_S34F_LACZ_3", 'U2AF1_WT_KRAS_G12V_3', 'U2AF1_WT_LACZ_3', "U2AF1_S34F_KRAS_G12V_1", "U2AF1_S34F_KRAS_G12V_2", "U2AF1_S34F_KRAS_G12V_3", "U2AF1_S34F_LACZ_1", "U2AF1_S34F_LACZ_2", "U2AF1_S34F_LACZ_3", 'U2AF1_WT_KRAS_G12V_1', 'U2AF1_WT_KRAS_G12V_2', 'U2AF1_WT_KRAS_G12V_3', 'U2AF1_WT_LACZ_1', 'U2AF1_WT_LACZ_2', 'U2AF1_WT_LACZ_3', "U2AF1_S34F_KRAS_G12V_4", "U2AF1_S34F_KRAS_G12V_5", "U2AF1_S34F_KRAS_G12V_6", "U2AF1_S34F_LACZ_4", "U2AF1_S34F_LACZ_5", "U2AF1_S34F_LACZ_6", 'U2AF1_WT_KRAS_G12V_4', 'U2AF1_WT_KRAS_G12V_5', 'U2AF1_WT_KRAS_G12V_6', 'U2AF1_WT_LACZ_4', 'U2AF1_WT_LACZ_5', 'U2AF1_WT_LACZ_6')
+
+u2af1krasRun <-c("U2AF1_S34F_KRAS_G12V_a", "U2AF1_S34F_LACZ_a", 'U2AF1_WT_KRAS_G12V_a', 'U2AF1_WT_LACZ_a', "U2AF1_S34F_KRAS_G12V_b", "U2AF1_S34F_LACZ_b", 'U2AF1_WT_KRAS_G12V_b', 'U2AF1_WT_LACZ_b', "U2AF1_S34F_KRAS_G12V_c", "U2AF1_S34F_LACZ_c", 'U2AF1_WT_KRAS_G12V_c', 'U2AF1_WT_LACZ_c', "U2AF1_S34F_KRAS_G12V_d", "U2AF1_S34F_KRAS_G12V_e", "U2AF1_S34F_KRAS_G12V_f", "U2AF1_S34F_LACZ_d", "U2AF1_S34F_LACZ_e", "U2AF1_S34F_LACZ_f", 'U2AF1_WT_KRAS_G12V_d', 'U2AF1_WT_KRAS_G12V_e', 'U2AF1_WT_KRAS_G12V_f', 'U2AF1_WT_LACZ_d', 'U2AF1_WT_LACZ_e', 'U2AF1_WT_LACZ_f', "U2AF1_S34F_KRAS_G12V_g", "U2AF1_S34F_KRAS_G12V_h", "U2AF1_S34F_KRAS_G12V_i", "U2AF1_S34F_LACZ_g", "U2AF1_S34F_LACZ_h", "U2AF1_S34F_LACZ_i", 'U2AF1_WT_KRAS_G12V_g', 'U2AF1_WT_KRAS_G12V_h', 'U2AF1_WT_KRAS_G12V_i', 'U2AF1_WT_LACZ_g', 'U2AF1_WT_LACZ_h', 'U2AF1_WT_LACZ_i')
+
+u2af1kras_samplecondition <- c('U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_LACZ', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_LACZ', 'U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_LACZ', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_LACZ', 'U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_LACZ', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_LACZ', 'U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_LACZ', 'U2AF1_S34F_LACZ', 'U2AF1_S34F_LACZ', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_LACZ', 'U2AF1_WT_LACZ', 'U2AF1_WT_LACZ', 'U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_LACZ', 'U2AF1_S34F_LACZ', 'U2AF1_S34F_LACZ', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_LACZ', 'U2AF1_WT_LACZ', 'U2AF1_WT_LACZ')
+
+u2af1krassampleTable<-data.frame(sampleName=u2af1krasFiles, fileName=u2af1krasFiles, condition=u2af1kras_samplecondition, batch=u2af1krasBatch, sample=u2af1krasSample, run=u2af1krasRun)
+
+u2af1krassampleTable
+```
+
+Construct deseq dataset
+
+```{r}
+u2af1kras_ddsHTSeq<-DESeqDataSetFromHTSeqCount(sampleTable=u2af1krassampleTable, directory=htseqcount_dir, design= ~batch + condition)
+
+# collapse technical replicates of clone 1
+
+u2af1krasddsColl <-collapseReplicates(u2af1kras_ddsHTSeq, u2af1kras_ddsHTSeq$sample, u2af1kras_ddsHTSeq$run)
+
+# set wt lacz as control
+u2af1krasddsColl$condition <- relevel(u2af1krasddsColl$condition, ref = 'U2AF1_WT_LACZ')
+
+colData(u2af1krasddsColl)
+```
+
+Perform DE analysis on collapsed dataset
+
+```{r}
+u2af1kras_dds<-DESeq(u2af1krasddsColl)
+u2af1kras_dds
+```
+Plot individual gene normalized counts
+```{r}
+plotCounts(u2af1kras_dds, gene='U2AF1', intgroup=c('condition', 'batch'))
+
+```
+KRAS normalized counts
+```{r}
+plotCounts(u2af1kras_dds, gene='KRAS', intgroup=c('condition', 'batch'))
+
+```
+
+H2AFY
+```{r}
+plotCounts(u2af1kras_dds, gene='MACROH2A1', intgroup=c('condition', 'batch'))
+
+```
+
+Perform likelihood ratio test
+
+```{r}
+#perform likelihood ratio test
+u2af1krasLRTbatch_dds <- DESeq(u2af1kras_dds, test="LRT", reduced=~batch)
+```
+Generate contrasts
+```{r}
+c1collapsed_u2af1s34f_lacz_vs_wtlacz_res <- DESeq2::results(u2af1krasLRTbatch_dds, contrast=c("condition", "U2AF1_S34F_LACZ", "U2AF1_WT_LACZ"))
+
+c1collapsed_u2af1wtkv12_vs_wtlacz_res <- DESeq2::results(u2af1krasLRTbatch_dds, contrast=c("condition", "U2AF1_WT_KRAS_G12V", "U2AF1_WT_LACZ"))
+
+c1collapsed_u2af1s34f_kv12_vs_wtlacz_res <- DESeq2::results(u2af1krasLRTbatch_dds, contrast=c("condition", "U2AF1_S34F_KRAS_G12V", "U2AF1_WT_LACZ"))
+```
+
+Plot volcano plots
+
+s34f lacz
+```{r}
+library('EnhancedVolcano')
+EnhancedVolcano(c1collapsed_u2af1s34f_lacz_vs_wtlacz_res, 
+                lab=rownames(c1collapsed_u2af1s34f_lacz_vs_wtlacz_res), 
+                x='log2FoldChange', y='pvalue', title="U2AF1 S34F LACZ vs. U2AF1 WT LACZ")
+
+```
+wt kv12
+```{r}
+
+EnhancedVolcano(c1collapsed_u2af1wtkv12_vs_wtlacz_res, 
+                lab=rownames(c1collapsed_u2af1wtkv12_vs_wtlacz_res), 
+                x='log2FoldChange', y='pvalue', title="U2AF1 WT KRAS G12V vs. U2AF1 WT LACZ")
+
+```
+s34f kv12
+```{r}
+EnhancedVolcano(c1collapsed_u2af1s34f_kv12_vs_wtlacz_res, lab=rownames(c1collapsed_u2af1s34f_kv12_vs_wtlacz_res), x='log2FoldChange', y='pvalue', title="U2AF1 S34F KRAS G12V vs. U2AF1 WT LACZ")
+
+```
+Export contrasts
+```{r}
+collapsedfiltered_u2af1s34f_lacz_vs_wtlacz_res <- c1collapsed_u2af1s34f_lacz_vs_wtlacz_res[!is.na(c1collapsed_u2af1s34f_lacz_vs_wtlacz_res$padj) & c1collapsed_u2af1s34f_lacz_vs_wtlacz_res$padj<0.05,]
+
+collapsedfiltered_u2af1wtkv12_vs_wtlacz_res <- c1collapsed_u2af1wtkv12_vs_wtlacz_res[!is.na(c1collapsed_u2af1wtkv12_vs_wtlacz_res$padj) & c1collapsed_u2af1wtkv12_vs_wtlacz_res$padj<0.05,]
+
+collapsedfilteredu2af1s34f_kv12_vs_wtlacz_res <- c1collapsed_u2af1s34f_kv12_vs_wtlacz_res[!is.na(c1collapsed_u2af1s34f_kv12_vs_wtlacz_res$padj) & c1collapsed_u2af1s34f_kv12_vs_wtlacz_res$padj<0.05,]
+
+write.csv(as.data.frame(collapsedfiltered_u2af1s34f_lacz_vs_wtlacz_res), file='~/Desktop/20241127filtered_u2af1s34f_lacz_vs_wtlacz_res')
+
+write.csv(as.data.frame(collapsedfiltered_u2af1wtkv12_vs_wtlacz_res), file='~/Desktop/20241127filtered_u2af1wtkv12_lacz_vs_wtlacz_res')
+
+write.csv(as.data.frame(collapsedfilteredu2af1s34f_kv12_vs_wtlacz_res), file='~/Desktop/20241127filtered_u2af1s34f_kv12_vs_wtlacz_res')
+```
+
+

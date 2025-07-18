@@ -1,0 +1,105 @@
+---
+title: "clone 1 clone 2 batch correction"
+author: "Cindy Liang (celiang@ucsc.edu)"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output: html_notebook
+---
+
+# Introduction:
+
+poly(A)-selected RNA from two isogenic clones of human bronchial epithelial cells (HBECs) were sequenced with the Illumina NovaSeq S4 (PE150). 
+Following alignment to a modified version of the GRCh38 reference genome that makes the U2AF1 alignable ([Miller 2022](https://zenodo.org/records/4684553)) with STAR, 
+HTSeq-count was run on the aligned files to produce gene count files.
+
+In this notebook, the DESeq2 and limma packages are used to collapse technical replicates in clone 1, 
+batch correct clone 1 and clone 2 samples,
+and plot PCAs of the DESeq2 matrices before and after batch correction.
+
+Please see the project's [biorxiv](https://www.biorxiv.org/content/10.1101/2024.09.11.612492v1.full#ref-50) and [github repo](https://github.com/cindyeliang/u2af1-kras) for further method details.
+
+Load DESeq2 library
+
+```{r}
+library('DESeq2')
+```
+
+Set path location
+
+```{r}
+base_dir <- here::here()
+
+# define the data directory
+data_dir <- file.path(base_dir, "data/raw")
+
+# define paths to files
+
+#load clinical metadata -- contains age at dx in years
+htseqcount_dir <- file.path(data_dir, "c1c2htseqcount/")
+
+```
+
+
+Load files
+
+```{r}
+u2af1krasFiles<-grep('clone', list.files(htseqcount_dir),value=TRUE)
+u2af1krasFiles
+```
+
+Create sample table
+
+```{r}
+u2af1krasBatch<-c("clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone1", "clone2", "clone2", "clone2", "clone2", "clone2", "clone2", "clone2", "clone2", "clone2", "clone2", "clone2", "clone2")
+
+u2af1krasSample<-c("U2AF1_S34F_KRAS_G12V_1", "U2AF1_S34F_LACZ_1", 'U2AF1_WT_KRAS_G12V_1', 'U2AF1_WT_LACZ_1', "U2AF1_S34F_KRAS_G12V_2", "U2AF1_S34F_LACZ_2", 'U2AF1_WT_KRAS_G12V_2', 'U2AF1_WT_LACZ_2', "U2AF1_S34F_KRAS_G12V_3", "U2AF1_S34F_LACZ_3", 'U2AF1_WT_KRAS_G12V_3', 'U2AF1_WT_LACZ_3', "U2AF1_S34F_KRAS_G12V_1", "U2AF1_S34F_KRAS_G12V_2", "U2AF1_S34F_KRAS_G12V_3", "U2AF1_S34F_LACZ_1", "U2AF1_S34F_LACZ_2", "U2AF1_S34F_LACZ_3", 'U2AF1_WT_KRAS_G12V_1', 'U2AF1_WT_KRAS_G12V_2', 'U2AF1_WT_KRAS_G12V_3', 'U2AF1_WT_LACZ_1', 'U2AF1_WT_LACZ_2', 'U2AF1_WT_LACZ_3', "U2AF1_S34F_KRAS_G12V_4", "U2AF1_S34F_KRAS_G12V_5", "U2AF1_S34F_KRAS_G12V_6", "U2AF1_S34F_LACZ_4", "U2AF1_S34F_LACZ_5", "U2AF1_S34F_LACZ_6", 'U2AF1_WT_KRAS_G12V_4', 'U2AF1_WT_KRAS_G12V_5', 'U2AF1_WT_KRAS_G12V_6', 'U2AF1_WT_LACZ_4', 'U2AF1_WT_LACZ_5', 'U2AF1_WT_LACZ_6')
+
+u2af1krasRun <-c("U2AF1_S34F_KRAS_G12V_a", "U2AF1_S34F_LACZ_a", 'U2AF1_WT_KRAS_G12V_a', 'U2AF1_WT_LACZ_a', "U2AF1_S34F_KRAS_G12V_b", "U2AF1_S34F_LACZ_b", 'U2AF1_WT_KRAS_G12V_b', 'U2AF1_WT_LACZ_b', "U2AF1_S34F_KRAS_G12V_c", "U2AF1_S34F_LACZ_c", 'U2AF1_WT_KRAS_G12V_c', 'U2AF1_WT_LACZ_c', "U2AF1_S34F_KRAS_G12V_d", "U2AF1_S34F_KRAS_G12V_e", "U2AF1_S34F_KRAS_G12V_f", "U2AF1_S34F_LACZ_d", "U2AF1_S34F_LACZ_e", "U2AF1_S34F_LACZ_f", 'U2AF1_WT_KRAS_G12V_d', 'U2AF1_WT_KRAS_G12V_e', 'U2AF1_WT_KRAS_G12V_f', 'U2AF1_WT_LACZ_d', 'U2AF1_WT_LACZ_e', 'U2AF1_WT_LACZ_f', "U2AF1_S34F_KRAS_G12V_g", "U2AF1_S34F_KRAS_G12V_h", "U2AF1_S34F_KRAS_G12V_i", "U2AF1_S34F_LACZ_g", "U2AF1_S34F_LACZ_h", "U2AF1_S34F_LACZ_i", 'U2AF1_WT_KRAS_G12V_g', 'U2AF1_WT_KRAS_G12V_h', 'U2AF1_WT_KRAS_G12V_i', 'U2AF1_WT_LACZ_g', 'U2AF1_WT_LACZ_h', 'U2AF1_WT_LACZ_i')
+
+u2af1kras_samplecondition <- c('U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_LACZ', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_LACZ', 'U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_LACZ', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_LACZ', 'U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_LACZ', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_LACZ', 'U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_LACZ', 'U2AF1_S34F_LACZ', 'U2AF1_S34F_LACZ', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_LACZ', 'U2AF1_WT_LACZ', 'U2AF1_WT_LACZ', 'U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_KRAS_G12V', 'U2AF1_S34F_LACZ', 'U2AF1_S34F_LACZ', 'U2AF1_S34F_LACZ', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_KRAS_G12V', 'U2AF1_WT_LACZ', 'U2AF1_WT_LACZ', 'U2AF1_WT_LACZ')
+
+u2af1krassampleTable<-data.frame(sampleName=u2af1krasFiles, fileName=u2af1krasFiles, condition=u2af1kras_samplecondition, batch=u2af1krasBatch, sample=u2af1krasSample, run=u2af1krasRun)
+
+u2af1krassampleTable
+```
+
+Construct deseq dataset
+
+```{r}
+u2af1kras_ddsHTSeq<-DESeqDataSetFromHTSeqCount(sampleTable=u2af1krassampleTable, directory=htseqcount_dir, design=~batch + condition)
+
+# collapse technical replicates of clone 1
+
+u2af1krasddsColl <-collapseReplicates(u2af1kras_ddsHTSeq, u2af1kras_ddsHTSeq$sample, u2af1kras_ddsHTSeq$run)
+```
+
+Example collapsed data
+
+```{r}
+colData(u2af1krasddsColl)
+```
+```{r}
+colnames(u2af1krasddsColl)
+```
+Plot PCA before batch correction
+
+```{r}
+u2af1krascollapsed_vst <- vst(u2af1krasddsColl, blind=FALSE)
+collapsed_PCA <- plotPCA(u2af1krascollapsed_vst, intgroup=c("condition", "batch"))
+collapsed_PCA
+```
+Batch correct by clones and replot PCA (done without collapsing clone 1 technical replicates)
+
+```{r}
+#aply vst transformation
+u2af1kras_ddsHTSeq_vst <- vst(u2af1kras_ddsHTSeq, blind=FALSE)
+
+#remove batch effects
+combined_matrix <- assay(u2af1kras_ddsHTSeq_vst)
+batch_corrected_comb_mat <- limma::removeBatchEffect(combined_matrix, u2af1krasBatch)
+assay(u2af1kras_ddsHTSeq_vst) <- batch_corrected_comb_mat
+counts_batch_corrected <- assay(u2af1kras_ddsHTSeq_vst)
+
+#look at effects of batch correction
+plotPCA(u2af1kras_ddsHTSeq_vst, intgroup=c("condition", "batch"))
+```
+
