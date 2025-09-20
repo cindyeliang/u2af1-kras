@@ -15,7 +15,7 @@ Description of contents:
 * [U2AF1_KRAS_Clone_1_and_2_GSEA-3](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/U2AF1%20KRAS%20Clone%201%20and%202%20GSEA-3.ipynb): GSEA analysis of splicing results from JuncBASE
 * [both_clones_splicing_analysis-2](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/%20both_clones_splicing_analysis-2.ipynb): Summary analyses of differential splicing for HBEC genotypes of both clones (splicing event type proportions, volcano plots)
 * [20250128_SG_analysis_combineclones-normbywtdmso_spotintensityonly](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/20250128_SG_analysis_combineclones-normbywtdmso_spotintensityonly.ipynb): Stress granule fluorescent signal intensity analysis for HBEC lines harboring only U2AF1 S34F mutation, compared to wild-type
-* 
+* [stacked_barplot_fishers_test](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/stacked_barplot_fishers_test.R): Statistical analysis to compare differential splice event usage between HBEC genotyps (for stacked bar plot of event proportions)
 
 Archived: 
 * DESeq2_Run_GeneExp: DESeq2 R commands used to perform differential gene expression analysis of HBECs with U2AF1 and KRAS mutations. All mutant cell lines were compared to the control, U2AF1 WT + LACZ genotype.
