@@ -1,5 +1,5 @@
 # u2af1-kras
-Repository of scripts &amp; analysis used for U2AF1 KRAS project. Data files (DESeq2 contrast results, JuncBASE differential expression results) are uploaded on GEO. Additional commands used during preprocessing such as alignment and generation of the counts files used for DESeq2 can be found in the methods section of our [preprint](https://www.biorxiv.org/content/10.1101/2024.09.11.612492v1.full).
+Repository of scripts &amp; analysis used for U2AF1 KRAS project. Data files (DESeq2 contrast results, JuncBASE differential expression results) are also uploaded on GEO under GSE267349. Additional commands used during preprocessing such as alignment and generation of the counts files used for DESeq2 can be found in the methods section of our [preprint](https://www.biorxiv.org/content/10.1101/2024.09.11.612492v1.full).
 
 ## Description of contents:
 * [TCGA Smoke vs Nonsmoker JB Analysis](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/20180821%20TCGA%20Smoker%20vs%20NonSmoker%20JB%20Analysis.ipynb): Analysis of JuncBASE output table of TCGA lung adenocarcinoma (ADC) primary sample data stratified by patient smoking status. Written by Cameron Soulette, Brooks lab alum
