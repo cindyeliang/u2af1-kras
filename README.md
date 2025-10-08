@@ -2,8 +2,8 @@
 Repository of scripts &amp; analysis used for U2AF1 KRAS project. Data files (DESeq2 contrast results, JuncBASE differential expression results) are also uploaded on GEO under GSE267349. Additional commands used during preprocessing such as alignment and generation of the counts files used for DESeq2 can be found in the methods section of our [preprint](https://www.biorxiv.org/content/10.1101/2024.09.11.612492v1.full).
 
 ## Description of contents:
+### Patient sample sequence analysis
 * [TCGA Smoke vs Nonsmoker JB Analysis](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/20180821%20TCGA%20Smoker%20vs%20NonSmoker%20JB%20Analysis.ipynb): Analysis of JuncBASE output table of TCGA lung adenocarcinoma (ADC) primary sample data stratified by patient smoking status. Written by Cameron Soulette, Brooks lab alum
-* [CSC-EdU+pH3+LC3](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/20240308-CSC-EdU%2BpH3%2BLC3.ipynb): Analysis of EdU and PHH3 fluorescent/immunofluorescent signal of HBECs with U2AF1 and KRAS mutations produced by immunostaining.
 * [cbioportal_lungADC_co-occurringEGFR_KRAS_Other](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/cbioportal_lungADC_co-occurringEGFR_KRAS_Other.ipynb): Using lung ADC primary sample mutational status data downloaded from cBioPortal, calculate fractions of EGFR, KRAS and all other mutations.
 * [cbioportal_lungADC_co-occurringEGFR_KRAS_otherdrivers](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/cbioportal_lungADC_co-occurringEGFR_KRAS_Other.ipynb): Using lung ADC primary sample mutational status data downloaded from cBioPortal, calculate fractions of EGFR, KRAS and all other driver mutations as defined by Tessema et al. 2018.
 ### Gene expresion analysis
@@ -14,7 +14,6 @@ Repository of scripts &amp; analysis used for U2AF1 KRAS project. Data files (DE
 * [02252025_Juncbase_run.sh](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/02252025_Juncbase_run.sh): JuncBASE commands used to perform differential splicing analysis on both HBEC clones, with additional clone 1 technical replicates. Performed by Selam Mehreteab.
 * [U2AF1_KRAS_Clone_1_and_2_GSEA-3](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/U2AF1%20KRAS%20Clone%201%20and%202%20GSEA-3.ipynb): GSEA analysis of splicing results from JuncBASE. Performed by Selam Mehreteab.
 * [both_clones_splicing_analysis-2](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/%20both_clones_splicing_analysis-2.ipynb): Summary analyses of differential splicing for HBEC genotypes of both clones (splicing event type proportions, volcano plots). Performed by Selam Mehreteab.
-* [20250128_SG_analysis_combineclones-normbywtdmso_spotintensityonly](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/20250128_SG_analysis_combineclones-normbywtdmso_spotintensityonly.ipynb): Stress granule fluorescent signal intensity analysis for HBEC lines harboring only U2AF1 S34F mutation, compared to wild-type
 * [stacked_barplot_fishers_test](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/stacked_barplot_fishers_test.R): Statistical analysis to compare differential splice event usage between HBEC genotyps (for stacked bar plot of event proportions). Performed by Selam Mehreteab.
 #### Splicing analysis input files & preprocessing:
 * [sample_manifest.py](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/sample_manifest.py) : Script used to create sample to bam manifest file to run JuncBASE. Performed by Selam Mehreteab.
@@ -37,6 +36,9 @@ Repository of scripts &amp; analysis used for U2AF1 KRAS project. Data files (DE
   * https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/nonredundant_JuncBase_wt_laczvswtkv12_PSI.tsv
   * https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/nonredundant_JuncBase_wt_laczvswtkv12_clone1_PSI.tsv
   * https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/nonredundant_JuncBase_wt_laczvswtkv12_clone2_PSI.tsv
+### Phenotypic analysis
+* [CSC-EdU+pH3+LC3](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/20240308-CSC-EdU%2BpH3%2BLC3.ipynb): Analysis of EdU and PHH3 fluorescent/immunofluorescent signal of HBECs with U2AF1 and KRAS mutations produced by immunostaining.
+* [20250128_SG_analysis_combineclones-normbywtdmso_spotintensityonly](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/20250128_SG_analysis_combineclones-normbywtdmso_spotintensityonly.ipynb): Stress granule fluorescent signal intensity analysis for HBEC lines harboring only U2AF1 S34F mutation, compared to wild-type
 
 ### Archived: 
 * [cbioportal_lungADC_co-occurringEGFR_KRAS_otherdrivers](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/cbioportal_lungADC_co-occurringEGFR_KRAS_otherdrivers.ipynb) : Same analysis as `cbioportal_lungADC_co-occurringEGFR_KRAS_other`, but with all other driver mutations instead of all other mutations
