@@ -15,7 +15,7 @@ Repository of scripts &amp; analysis used for U2AF1 KRAS project. Data files (DE
 * [U2AF1_KRAS_Clone_1_and_2_GSEA-3](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/U2AF1%20KRAS%20Clone%201%20and%202%20GSEA-3.ipynb): GSEA analysis of splicing results from JuncBASE. Performed by Selam Mehreteab.
 * [both_clones_splicing_analysis-2](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/%20both_clones_splicing_analysis-2.ipynb): Summary analyses of differential splicing for HBEC genotypes of both clones (splicing event type proportions, volcano plots). Performed by Selam Mehreteab.
 * [stacked_barplot_fishers_test](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/stacked_barplot_fishers_test.R): Statistical analysis to compare differential splice event usage between HBEC genotyps (for stacked bar plot of event proportions). Performed by Selam Mehreteab.
-#### Splicing analysis input files & preprocessing:
+* [Fisher's splicing stacked barplot results](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/stacked_barplot_fishers_test): Output file from stacked_barplot_fishers_test
 * [sample_manifest.py](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/sample_manifest.py) : Script used to create sample to bam manifest file to run JuncBASE. Performed by Selam Mehreteab.
 * [u2af1kras_samp2bam_docker.txt](https://github.com/cindyeliang/u2af1-kras/blob/main/scripts/u2af1kras_samp2bam_docker.txt) : sample to bam manifest file for JuncBASE
 ##### Unnamed gene list: JuncBASE will occasionally fail to assign gene names to splice junctions close to neighboring genes. In these cases, we manually annotate gene names by examining coordinates on alignments on IGV. The events manually annotated are in these files.
